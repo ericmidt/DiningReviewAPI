@@ -7,7 +7,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 
 @Entity
-public class User {
+public class DiningUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,11 +24,11 @@ public class User {
     private boolean dairyAllergy;
 
 
-    public User() {
+    public DiningUser() {
 
     }
 
-    public User(String username,
+    public DiningUser(String username,
                 String city,
                 String state,
                 String zipcode,

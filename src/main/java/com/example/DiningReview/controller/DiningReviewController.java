@@ -9,6 +9,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping
@@ -40,15 +42,21 @@ public class DiningReviewController {
     }
 
     @PostMapping("/users")
-    public User createUser(@RequestBody User user) {
-        // Implement logic to check uniqueness of display name
-        // and save the user profile
+    public DiningUser createUser(@RequestBody DiningUser user) {
+        // Check if the username is already taken
+        Optional<DiningUser> existingUser = userRepository.getByUsername(user.getUsername());
+        if (existingUser.isPresent()) {
+            throw new IllegalArgumentException("Username already exists. Please choose a different username.");
+        }
+    
+        // Save the user profile
         return userRepository.save(user);
     }
+    
 
     @PutMapping("/users/{id}")
-    public User updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-        User existingUser = userRepository.findById(id)
+    public DiningUser updateUser(@PathVariable Long id, @RequestBody DiningUser updatedUser) {
+        DiningUser existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
         
         // Check if display name is being modified, if not update other details
@@ -65,7 +73,7 @@ public class DiningReviewController {
     }
 
     @GetMapping("/users/by-username/{username}")
-    public User getUserByUsername(@PathVariable String username) {
+    public DiningUser getUserByUsername(@PathVariable String username) {
         return userRepository.getByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
@@ -85,6 +93,12 @@ public class DiningReviewController {
         return diningReviewRepository.save(diningReview);
     }
 
+    @GetMapping("/admin/reviews")
+    public List<DiningReview> getAllReviews() {
+        return StreamSupport.stream(diningReviewRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
     @GetMapping("/admin/pending-reviews")
     public List<DiningReview> getPendingReviews() {
         return diningReviewRepository.findByApprovalStatus(ApprovalStatus.PENDING);
@@ -93,16 +107,20 @@ public class DiningReviewController {
     @PutMapping("/admin/reviews/{id}")
     public DiningReview approveOrRejectReview(@PathVariable Long id, @RequestBody DiningReview review) {
         DiningReview existingReview = diningReviewRepository.findById(id)
-        .orElseThrow(() -> new NotFoundException("Review not found"));
-
-        if (review.getApprovalStatus() == ApprovalStatus.ACCEPTED) {
-            // Handle approval logic
-        } else if (review.getApprovalStatus() == ApprovalStatus.REJECTED) {
-            // Handle rejection logic
-        }
-
+                .orElseThrow(() -> new NotFoundException("Review not found"));
+    
+        existingReview.setApprovalStatus(review.getApprovalStatus());
+    
         return diningReviewRepository.save(existingReview);
     }
+    
+    @GetMapping("/admin/users")
+    public List<DiningUser> getAllUsers() {
+        return StreamSupport.stream(userRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+    }
+    
+
 
     @PostMapping("/restaurants")
     public Restaurant submitRestaurant(@RequestBody Restaurant restaurant) {
