@@ -1,6 +1,6 @@
-# DiningReview Java API
+# Dining Review Java API
 
-The DiningReview API allows users to submit and view dining reviews for restaurants. Users can create accounts, submit reviews for restaurants, and view pending reviews. Admins have the ability to approve or reject pending reviews.
+The Dining Review API allows users to submit and view dining reviews for restaurants. Users can create accounts, submit reviews for restaurants, and view pending reviews. Admins have the ability to approve or reject pending reviews.
 
 ## Features
 
